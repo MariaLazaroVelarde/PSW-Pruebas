@@ -1,0 +1,156 @@
+# ==============================================
+# Docker Compose para Water Distribution System
+# Incluye: Aplicación + MongoDB + Monitoring
+# ==============================================
+
+version: '3.8'
+
+services:
+  # ==============================================
+  # Aplicación Principal
+  # ==============================================
+  water-distribution-app:
+    build:
+      context: .  # El contexto es el directorio actual
+      dockerfile: Dockerfile  # Usamos el Dockerfile local
+    container_name: water-distribution-app
+    ports:
+      - "8086:8086"
+    environment:
+      # Configuración de Spring
+      SPRING_PROFILES_ACTIVE: docker
+      
+      # Configuración de MongoDB para producción
+      # Usar MongoDB Atlas o servicio externo en producción
+      MONGO_USERNAME: ${MONGO_USERNAME:-waterdist}
+      MONGO_PASSWORD: ${MONGO_PASSWORD:-waterdist123}
+      MONGO_DATABASE: ${MONGO_DATABASE:-water_distribution_db}
+      
+      # Configuración de la aplicación
+      NOMBRE_MICROSERVICIO: water-distribution-microservice
+      
+      # APIs externas - Configurado para lab.vallegrande.edu.pe
+      MS_USERS_BASE_URL: https://lab.vallegrande.edu.pe/jass/ms-users
+      
+      # Configuración JVM optimizada para contenedor
+      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseContainerSupport"
+    
+    depends_on:
+      - mongodb
+    
+    restart: unless-stopped
+    
+    # Health check usando el endpoint de actuator
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Recursos limitados
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    networks:
+      - water-distribution-network
+
+  # ==============================================
+  # Base de Datos MongoDB
+  # ==============================================
+  mongodb:
+    image: mongo:7.0-jammy
+    container_name: water-distribution-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: waterdist
+      MONGO_INITDB_ROOT_PASSWORD: waterdist123
+      MONGO_INITDB_DATABASE: water_distribution_db
+    
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    
+    restart: unless-stopped
+    
+    # Health check para MongoDB
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    networks:
+      - water-distribution-network
+
+  # ==============================================
+  # Monitoring con Prometheus (Opcional)
+  # ==============================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: water-distribution-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - water-distribution-network
+
+  # ==============================================
+  # Grafana para Dashboard (Opcional)
+  # ==============================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: water-distribution-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - water-distribution-network
+
+# ==============================================
+# Volúmenes Persistentes
+# ==============================================
+volumes:
+  mongodb_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ==============================================
+# Red Custom
+# ==============================================
+networks:
+  water-distribution-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

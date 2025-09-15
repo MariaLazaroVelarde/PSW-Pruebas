@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationRest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">structure-microservice</a> &gt; <a href="index.source.html" class="el_package">pe.edu.vallegrande.ms_distribution.infrastructure.rest</a> &gt; <span class="el_source">OrganizationRest.java</span></div><h1>OrganizationRest.java</h1><pre class="source lang-java linenums">package pe.edu.vallegrande.ms_distribution.infrastructure.rest;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import pe.edu.vallegrande.ms_distribution.infrastructure.dto.external.AdminUserResponse;
+import pe.edu.vallegrande.ms_distribution.infrastructure.service.OrganizationService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/**
+ * Controlador para gestión de organizaciones y validaciones
+ */
+@Tag(name = &quot;Organization&quot;, description = &quot;API para gestión de organizaciones&quot;)
+@RestController
+@RequestMapping(&quot;/api/organizations&quot;)
+@RequiredArgsConstructor
+public class OrganizationRest {
+
+    private final OrganizationService organizationService;
+
+    @Operation(summary = &quot;Obtener administradores autorizados&quot;, 
+               description = &quot;Obtiene la lista de administradores autorizados para una organización&quot;)
+    @GetMapping(&quot;/{organizationId}/admins&quot;)
+    public Flux&lt;AdminUserResponse&gt; getAuthorizedAdmins(
+            @Parameter(description = &quot;ID de la organización&quot;) 
+            @PathVariable String organizationId) {
+<span class="nc" id="L31">        return organizationService.getAuthorizedAdminsByOrganization(organizationId);</span>
+    }
+
+    @Operation(summary = &quot;Verificar administrador autorizado&quot;, 
+               description = &quot;Verifica si un usuario es administrador autorizado de una organización&quot;)
+    @GetMapping(&quot;/{organizationId}/admins/{userId}/authorized&quot;)
+    public Mono&lt;ResponseEntity&lt;Boolean&gt;&gt; isAuthorizedAdmin(
+            @Parameter(description = &quot;ID de la organización&quot;) 
+            @PathVariable String organizationId,
+            @Parameter(description = &quot;ID del usuario&quot;) 
+            @PathVariable String userId) {
+<span class="nc" id="L42">        return organizationService.isAuthorizedAdmin(organizationId, userId)</span>
+<span class="nc" id="L43">                .map(ResponseEntity::ok);</span>
+    }
+
+    @Operation(summary = &quot;Obtener administrador específico&quot;, 
+               description = &quot;Obtiene un administrador específico por su ID y organización&quot;)
+    @GetMapping(&quot;/{organizationId}/admins/{adminId}&quot;)
+    public Mono&lt;AdminUserResponse&gt; getAdminById(
+            @Parameter(description = &quot;ID de la organización&quot;) 
+            @PathVariable String organizationId,
+            @Parameter(description = &quot;ID del administrador&quot;) 
+            @PathVariable String adminId) {
+<span class="nc" id="L54">        return organizationService.getAdminById(organizationId, adminId);</span>
+    }
+
+    @Operation(summary = &quot;Verificar existencia de organización&quot;, 
+               description = &quot;Verifica si una organización existe y tiene administradores&quot;)
+    @GetMapping(&quot;/{organizationId}/exists&quot;)
+    public Mono&lt;ResponseEntity&lt;Boolean&gt;&gt; organizationExists(
+            @Parameter(description = &quot;ID de la organización&quot;) 
+            @PathVariable String organizationId) {
+<span class="nc" id="L63">        return organizationService.organizationExists(organizationId)</span>
+<span class="nc" id="L64">                .map(ResponseEntity::ok);</span>
+    }
+
+    @Operation(summary = &quot;Obtener usuarios de organización&quot;, 
+               description = &quot;Obtiene todos los usuarios de una organización&quot;)
+    @GetMapping(&quot;/{organizationId}/users&quot;)
+    public Flux&lt;Object&gt; getOrganizationUsers(
+            @Parameter(description = &quot;ID de la organización&quot;) 
+            @PathVariable String organizationId) {
+<span class="nc" id="L73">        return organizationService.getOrganizationUsers(organizationId);</span>
+    }
+
+    @Operation(summary = &quot;Obtener clientes de organización&quot;, 
+               description = &quot;Obtiene todos los clientes de una organización&quot;)
+    @GetMapping(&quot;/{organizationId}/clients&quot;)
+    public Flux&lt;Object&gt; getOrganizationClients(
+            @Parameter(description = &quot;ID de la organización&quot;) 
+            @PathVariable String organizationId) {
+<span class="nc" id="L82">        return organizationService.getOrganizationClients(organizationId);</span>
+    }
+
+    @Operation(summary = &quot;Obtener usuario por ID&quot;, 
+               description = &quot;Obtiene un usuario específico por su ID&quot;)
+    @GetMapping(&quot;/users/{userId}&quot;)
+    public Mono&lt;Object&gt; getUserById(
+            @Parameter(description = &quot;ID del usuario&quot;) 
+            @PathVariable String userId) {
+<span class="nc" id="L91">        return organizationService.getUserById(userId);</span>
+    }
+
+    @Operation(summary = &quot;Endpoint de prueba&quot;, 
+               description = &quot;Endpoint simple para probar que la API funciona&quot;)
+    @GetMapping(&quot;/test&quot;)
+    public Mono&lt;ResponseEntity&lt;String&gt;&gt; testEndpoint() {
+<span class="nc" id="L98">        return Mono.just(ResponseEntity.ok(&quot;API funcionando correctamente - sin autenticación requerida&quot;));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

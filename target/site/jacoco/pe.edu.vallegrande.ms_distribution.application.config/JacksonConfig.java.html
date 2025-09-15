@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JacksonConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">structure-microservice</a> &gt; <a href="index.source.html" class="el_package">pe.edu.vallegrande.ms_distribution.application.config</a> &gt; <span class="el_source">JacksonConfig.java</span></div><h1>JacksonConfig.java</h1><pre class="source lang-java linenums">package pe.edu.vallegrande.ms_distribution.application.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+
+import java.time.Instant;
+
+/**
+ * Configuración global de Jackson para manejo correcto de fechas y serialización
+ */
+@Configuration
+<span class="nc" id="L18">public class JacksonConfig {</span>
+
+    @Bean
+    @Primary
+    public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
+<span class="nc" id="L23">        SimpleModule module = new SimpleModule();</span>
+<span class="nc" id="L24">        module.addSerializer(Instant.class, new InstantSerializer());</span>
+        
+<span class="nc" id="L26">        return new Jackson2ObjectMapperBuilder()</span>
+<span class="nc" id="L27">                .simpleDateFormat(&quot;yyyy-MM-dd'T'HH:mm:ss.SSS'Z'&quot;)</span>
+<span class="nc" id="L28">                .modules(module, new JavaTimeModule())</span>
+<span class="nc" id="L29">                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);</span>
+    }
+
+    @Bean
+    @Primary
+    public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
+<span class="nc" id="L35">        ObjectMapper mapper = builder.build();</span>
+<span class="nc" id="L36">        mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
+<span class="nc" id="L37">        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);</span>
+<span class="nc" id="L38">        return mapper;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

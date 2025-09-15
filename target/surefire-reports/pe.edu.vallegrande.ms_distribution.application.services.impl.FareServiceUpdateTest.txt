@@ -1,0 +1,36 @@
+-------------------------------------------------------------------------------
+Test set: pe.edu.vallegrande.ms_distribution.application.services.impl.FareServiceUpdateTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 3.206 s <<< FAILURE! -- in pe.edu.vallegrande.ms_distribution.application.services.impl.FareServiceUpdateTest
+pe.edu.vallegrande.ms_distribution.application.services.impl.FareServiceUpdateTest.updateF_ShouldThrowError_WhenFareNotFound -- Time elapsed: 0.047 s <<< FAILURE!
+java.lang.AssertionError: expectation "expectErrorMatches" failed (predicate failed on exception: pe.edu.vallegrande.ms_distribution.infrastructure.exception.CustomException: Fare not found)
+	at reactor.test.MessageFormatter.assertionError(MessageFormatter.java:115)
+	at reactor.test.MessageFormatter.failPrefix(MessageFormatter.java:104)
+	at reactor.test.MessageFormatter.fail(MessageFormatter.java:73)
+	at reactor.test.MessageFormatter.failOptional(MessageFormatter.java:88)
+	at reactor.test.DefaultStepVerifierBuilder.lambda$expectErrorMatches$8(DefaultStepVerifierBuilder.java:420)
+	at reactor.test.DefaultStepVerifierBuilder$SignalEvent.test(DefaultStepVerifierBuilder.java:2289)
+	at reactor.test.DefaultStepVerifierBuilder$DefaultVerifySubscriber.onSignal(DefaultStepVerifierBuilder.java:1529)
+	at reactor.test.DefaultStepVerifierBuilder$DefaultVerifySubscriber.onExpectation(DefaultStepVerifierBuilder.java:1477)
+	at reactor.test.DefaultStepVerifierBuilder$DefaultVerifySubscriber.onError(DefaultStepVerifierBuilder.java:1129)
+	at reactor.core.publisher.MonoFlatMap$FlatMapMain.onError(MonoFlatMap.java:180)
+	at reactor.core.publisher.Operators$MultiSubscriptionSubscriber.onError(Operators.java:2235)
+	at reactor.core.publisher.Operators.error(Operators.java:198)
+	at reactor.core.publisher.MonoError.subscribe(MonoError.java:53)
+	at reactor.core.publisher.Mono.subscribe(Mono.java:4576)
+	at reactor.core.publisher.FluxSwitchIfEmpty$SwitchIfEmptySubscriber.onComplete(FluxSwitchIfEmpty.java:82)
+	at reactor.core.publisher.Operators.complete(Operators.java:137)
+	at reactor.core.publisher.MonoEmpty.subscribe(MonoEmpty.java:46)
+	at reactor.core.publisher.Mono.subscribe(Mono.java:4576)
+	at reactor.test.DefaultStepVerifierBuilder$DefaultStepVerifier.toVerifierAndSubscribe(DefaultStepVerifierBuilder.java:891)
+	at reactor.test.DefaultStepVerifierBuilder$DefaultStepVerifier.verify(DefaultStepVerifierBuilder.java:831)
+	at reactor.test.DefaultStepVerifierBuilder$DefaultStepVerifier.verify(DefaultStepVerifierBuilder.java:823)
+	at pe.edu.vallegrande.ms_distribution.application.services.impl.FareServiceUpdateTest.updateF_ShouldThrowError_WhenFareNotFound(FareServiceUpdateTest.java:134)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	Suppressed: pe.edu.vallegrande.ms_distribution.infrastructure.exception.CustomException: Fare not found
+		at pe.edu.vallegrande.ms_distribution.application.services.impl.FareServiceImpl.updateF(FareServiceImpl.java:110)
+		at pe.edu.vallegrande.ms_distribution.application.services.impl.FareServiceUpdateTest.updateF_ShouldThrowError_WhenFareNotFound(FareServiceUpdateTest.java:124)
+		... 3 more
+

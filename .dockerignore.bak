@@ -1,0 +1,58 @@
+# ==============================================
+# .dockerignore para Water Distribution Microservice
+# Optimiza el contexto de build para Docker
+# ==============================================
+
+# Directorios de build y cache
+target/
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test reports
+*.xml
+*.txt
+
+# Git
+.git/
+.gitignore
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Documentación que no se necesita en runtime
+*.md
+docs/
+
+# Scripts de desarrollo
+scripts/dev/
+test-*.ps1
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Node modules (si los hay)
+node_modules/
+package-lock.json
+
+# Configuraciones locales
+application-local.yml
+application-dev.yml
